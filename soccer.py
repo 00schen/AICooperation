@@ -18,7 +18,7 @@ class Point:
 
     @staticmethod
     def normSq(p, q):
-        return (p.x - q-x)**2 + (p.y - q.y)**2
+        return (p.x - q.x)**2 + (p.y - q.y)**2
 
 class Stage:
     def __init__(self, players):
@@ -32,6 +32,15 @@ class Stage:
         ]
         self.ball = Ball(Point(WIDTH / 2, HEIGHT / 2), 5)
         self.players = players
+
+    def moveCycle(self):
+        for player in self.players:
+            player.move
+        for player in self.players:
+            for other in self.players:
+                if player.collide(other) \
+                and player != other:
+                    player.revertMove()
 
     def ballScored(self):
         return self.walls[2].hasScored(self.ball) \
@@ -101,6 +110,14 @@ class Player:
         self.max_speed = max_speed
         self.max_angle = max_angle
         self.max_kick = max_kick
+        self.prev_pos = center
+
+    def move(self):
+        self.prev_pos = self.center
+        Circle.move(self)
+
+    def revertMove(self):
+        self.center = self.prev_pos
 
     def changeMove(self, v, theta):
         self.velocity = v
