@@ -33,15 +33,17 @@ class Stage:
         self.ball = Ball(Point(WIDTH / 2, HEIGHT / 2), 5)
         self.players = players
 
-    def moveCycle(self):
-        for player in self.players:
-            player.move
+    def __resolvePlayerCollisions(self):
         for player in self.players:
             for other in self.players:
                 if player.collide(other) \
                 and player != other:
                     player.revertMove()
-
+    
+    def moveCycle(self):
+        for player in self.players:
+            player.move
+        self.__resolvePlayerCollisions()
         self.ball.move
 
     def ballScored(self):
