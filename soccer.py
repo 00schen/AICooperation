@@ -42,6 +42,8 @@ class Stage:
                 and player != other:
                     player.revertMove()
 
+        self.ball.move
+
     def ballScored(self):
         return self.walls[2].hasScored(self.ball) \
             or self.walls[3].hasScored(self.ball)
