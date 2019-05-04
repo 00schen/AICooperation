@@ -78,6 +78,22 @@ class Wall: # 0 for horizontal orientation , 1 for vertical
         else:
             self.orientation = 0
 
+
+    # def __orientation(p, q, r): #use cross-product to determine rotation of three points
+    #     cross = (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x)
+    #     return 0 if cross == 0 else 1 if cross > 1 else -1
+
+    # def __intersection(p1, p2, q1, q2): #determines intersection between line bounded by p1, p2 and line bounded by q1, q2
+    #     return Wall.__orientation(p1, p2, q1) < 0 \
+    #         ==  Wall.__orientation(p1, p2, q2) < 0 \
+    #         and Wall.__orientation(p1, p2, q1) != 0
+
+    # def collide(self, c):
+    #     p = Point(c.radius * cos((self.angle - .5) * pi), 
+    #             c.radius * sin((self.angle - .5) * pi))
+    #     p = c.add(p)
+    #     return Wall.__intersection(self.bounds[0], self.bounds[1], c, p)
+
     def collide(self, c): #Good
         
         if(not (self.orientation)):
