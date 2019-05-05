@@ -49,13 +49,13 @@ class Stage:
     
     def moveCycle(self):
         for player in self.players:
-            player.move
+            player.move()
         self.__resolvePlayerCollisions()
-        self.ball.move
+        self.ball.move()
         
-        if(ballScored):
+        if(self.ballScored()):
             return 1
-        elif(ballOutBounds):
+        elif(self.ballOutBounds()):
             return 2
         else:
             return 0
