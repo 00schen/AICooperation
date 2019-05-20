@@ -2,7 +2,6 @@ from math import sin
 from math import cos
 from math import pi
 from math import atan2
-from random import randint
 
 WIDTH = 400
 HEIGHT = 200
@@ -35,7 +34,7 @@ class _Point:
         return self.x == other.x and self.y == other.y
 
 class Stage:
-    def __init__(self, players):
+    def __init__(self, players, possession):
         self.walls = [
             _Wall((_Point(0, 0), _Point(WIDTH, 0))),
             _Wall((_Point(0, HEIGHT), _Point(WIDTH, HEIGHT))),
@@ -46,27 +45,38 @@ class Stage:
         ]
         self.ball = _Ball(_Point(WIDTH / 2, HEIGHT / 2), 5)
         self.players = players
-        self.possession = randint(0,1)
+        self.possession = possession
 
-    def __resolvePlayerCollisions(self):
-        for player in self.players:
-            for other in self.players:
-                if player.collide(other) \
-                and player != other:
-                    player.revertMove()
+    def __resolvePlayerCollisions(self, player):
+        for other in self.players:
+            if player.collide(other) and player != other:
+                player.revertMove()
     
-    def moveCycle(self):
-        for player in self.players:
-            player.move()
-        self.__resolvePlayerCollisions()
+    def moveCycle(self, actions):
+        new_state = []
+
+        for i in range(len(self.players)):
+            player = self.players[i]
+            action = actions[i]
+            if (action[0] == 1):
+                player.changeMove(*action[1])
+            elif (action[0] == 2):
+                player.kick(self.ball, *action[1])
+            elif (action[0] == 0):
+                player.move()
+                self.__resolvePlayerCollisions(player)
+            new_state.append(player.center)
+
         self.ball.move()
-        
+        new_state.append(self.ball.center)
         if(self.__ballScored()):
-            return 1
+            new_state.append(1)
         elif(self.__ballOutBounds()):
-            return 2
+            new_state.append(2)
         else:
-            return 0
+            new_state.append(0)
+        
+        return new_state
 
     def __ballScored(self):
         return self.walls[2].hasScored(self.ball) \
@@ -112,7 +122,8 @@ class _Wall: # 0 for horizontal orientation , 1 for vertical
             return (abs(c.center.x - self.bounds[0].x) <= c.radius)
     
     def __str__(self): #Good
-        return "Bound 1: {}\nBound 2: {} \nOrientation: {}".format(self.bounds[0],self.bounds[1],self.orientation)
+        return "Bound 1: {}\nBound 2: {} \nOrientation: {}"\
+            .format(self.bounds[0], self.bounds[1], self.orientation)
 
 class _Goal(_Wall):
     def __init__(self, bounds, inner): #Good
@@ -138,7 +149,8 @@ class _Goal(_Wall):
         return super().collide(b) and not self.hasScored(b)
     
     def __str__(self): #Good
-        return super().__str__() + "\nGoal bound 1: {}\nGoal bound 2: {}".format(self.inner[0],self.inner[1])
+        return super().__str__() + "\nGoal bound 1: {}\nGoal bound 2: {}"\
+            .format(self.inner[0], self.inner[1])
 
 class _Circle:
     def __init__(self, center, radius): #Good
@@ -156,8 +168,8 @@ class _Circle:
             <= self.radius + c.radius 
     
     def __str__(self): #Good
-        return "\nCenter: {} \nRadius: {} \nVelocity: {} \nAngle: {}".format(self.center,self.radius,self.velocity,
-                                                                                              self.angle)
+        return "\nCenter: {} \nRadius: {} \nVelocity: {} \nAngle: {}"\
+            .format(self.center, self.radius, self.velocity, self.angle)
 
 class _Ball(_Circle):
     def __init__(self, center, radius): #Good
@@ -179,7 +191,6 @@ class _Player(_Circle):
         self.center = self.prev_pos
 
     def changeMove(self, v, theta): #Good
-        
         #Check for max speed
         if(v <= self.max_speed):
             self.velocity = v
@@ -190,7 +201,6 @@ class _Player(_Circle):
         self.angle = theta
 
     def kick(self, b, kick, theta): #Good
-        
         if not(self.collide(b)):
             return
         
@@ -207,14 +217,9 @@ class _Player(_Circle):
             kick = -1 * self.max_kick
             
         #Adjust ball's velocity
-        angle = theta
-        velocity = kick
-        
-        after_x = b.velocity * cos(b.angle) + velocity * cos(angle)
-        after_y = b.velocity * sin(b.angle) + velocity * sin(angle)
-        
-        b.velocity = ((after_x)**2 + (after_y)**2)**(1/2)
-        b.angle = atan2(after_y,after_x)
+        b.angle = theta
+        b.velocity = kick
         
     def __str__(self): #Good
-        return super().__str__() + "\nMax Speed: {} \nMax Angle: {} \nMax Kick: {}".format(self.max_speed,self.max_angle,self.max_kick)
+        return super().__str__() + "\nMax Speed: {} \nMax Angle: {} \nMax Kick: {}"\
+            .format(self.max_speed, self.max_angle, self.max_kick)
