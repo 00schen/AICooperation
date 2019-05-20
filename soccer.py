@@ -2,20 +2,27 @@ from math import sin
 from math import cos
 from math import pi
 from math import atan2
+from random import randint
 
 WIDTH = 400
 HEIGHT = 200
 
-class Point:
+TEAM_RED = False
+TEAM_BLUE = True
+
+def make(players):
+    return Stage(players)
+
+class _Point:
     def __init__(self, x, y): #Good
         self.x = x
         self.y = y
 
     def add(self, p): #Good
-        return Point(self.x + p.x, self.y + p.y)
+        return _Point(self.x + p.x, self.y + p.y)
 
     def sub(self, p): #Good
-        return Point(self.x - p.x, self.y - p.y)
+        return _Point(self.x - p.x, self.y - p.y)
 
     @staticmethod
     def normSq(p, q): #Good
@@ -30,15 +37,16 @@ class Point:
 class Stage:
     def __init__(self, players):
         self.walls = [
-            Wall((Point(0, 0), Point(WIDTH, 0))),
-            Wall((Point(0, HEIGHT), Point(WIDTH, HEIGHT))),
-            Goal((Point(0, HEIGHT), Point(0,0)),
-                (Point(0, HEIGHT / 3), Point(0, HEIGHT * 2 / 3))),
-            Goal((Point(WIDTH,0), Point(WIDTH, HEIGHT)),
-                (Point(WIDTH, HEIGHT / 3), Point(WIDTH, HEIGHT * 2 / 3)))
+            _Wall((_Point(0, 0), _Point(WIDTH, 0))),
+            _Wall((_Point(0, HEIGHT), _Point(WIDTH, HEIGHT))),
+            _Goal((_Point(0, HEIGHT), _Point(0,0)),
+                (_Point(0, HEIGHT / 3), _Point(0, HEIGHT * 2 / 3))),
+            _Goal((_Point(WIDTH,0), _Point(WIDTH, HEIGHT)),
+                (_Point(WIDTH, HEIGHT / 3), _Point(WIDTH, HEIGHT * 2 / 3)))
         ]
-        self.ball = Ball(Point(WIDTH / 2, HEIGHT / 2), 5)
+        self.ball = _Ball(_Point(WIDTH / 2, HEIGHT / 2), 5)
         self.players = players
+        self.possession = randint(0,1)
 
     def __resolvePlayerCollisions(self):
         for player in self.players:
@@ -53,24 +61,24 @@ class Stage:
         self.__resolvePlayerCollisions()
         self.ball.move()
         
-        if(self.ballScored()):
+        if(self.__ballScored()):
             return 1
-        elif(self.ballOutBounds()):
+        elif(self.__ballOutBounds()):
             return 2
         else:
             return 0
 
-    def ballScored(self):
+    def __ballScored(self):
         return self.walls[2].hasScored(self.ball) \
             or self.walls[3].hasScored(self.ball)
 
-    def ballOutBounds(self):
+    def __ballOutBounds(self):
         return self.walls[0].collide(self.ball) \
             or self.walls[1].collide(self.ball) \
             or self.walls[2].collide(self.ball) \
             or self.walls[3].collide(self.ball)
 
-class Wall: # 0 for horizontal orientation , 1 for vertical
+class _Wall: # 0 for horizontal orientation , 1 for vertical
     def __init__(self, bounds): #Good
         self.bounds = bounds
         if(bounds[0].x == bounds[1].x):
@@ -106,13 +114,13 @@ class Wall: # 0 for horizontal orientation , 1 for vertical
     def __str__(self): #Good
         return "Bound 1: {}\nBound 2: {} \nOrientation: {}".format(self.bounds[0],self.bounds[1],self.orientation)
 
-class Goal(Wall):
+class _Goal(_Wall):
     def __init__(self, bounds, inner): #Good
         super().__init__(bounds)
         self.inner = inner
 
     def hasScored(self, b): #Good
-        net = Wall(self.inner)
+        net = _Wall(self.inner)
         
         #check if b is within bounds
         if(net.orientation):
@@ -132,7 +140,7 @@ class Goal(Wall):
     def __str__(self): #Good
         return super().__str__() + "\nGoal bound 1: {}\nGoal bound 2: {}".format(self.inner[0],self.inner[1])
 
-class Circle:
+class _Circle:
     def __init__(self, center, radius): #Good
         self.center = center
         self.radius = radius
@@ -140,22 +148,22 @@ class Circle:
         self.angle = 0
 
     def move(self): #Good
-        dp = Point(self.velocity * cos(self.angle), self.velocity * sin(self.angle))
+        dp = _Point(self.velocity * cos(self.angle), self.velocity * sin(self.angle))
         self.center = self.center.add(dp)
 
     def collide(self, c): #Good
-        return Point.normSq(self.center, c.center) \
+        return _Point.normSq(self.center, c.center) \
             <= self.radius + c.radius 
     
     def __str__(self): #Good
         return "\nCenter: {} \nRadius: {} \nVelocity: {} \nAngle: {}".format(self.center,self.radius,self.velocity,
                                                                                               self.angle)
 
-class Ball(Circle):
+class _Ball(_Circle):
     def __init__(self, center, radius): #Good
         super().__init__(center,radius)
 
-class Player(Circle):
+class _Player(_Circle):
     def __init__(self, center, radius, max_speed, max_angle, max_kick): #Good
         super().__init__(center, radius)
         self.max_speed = max_speed
