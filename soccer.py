@@ -9,30 +9,6 @@ HEIGHT = 200
 TEAM_RED = False
 TEAM_BLUE = True
 
-def make(players):
-    return Stage(players)
-
-class _Point:
-    def __init__(self, x, y): #Good
-        self.x = x
-        self.y = y
-
-    def add(self, p): #Good
-        return _Point(self.x + p.x, self.y + p.y)
-
-    def sub(self, p): #Good
-        return _Point(self.x - p.x, self.y - p.y)
-
-    @staticmethod
-    def normSq(p, q): #Good
-        return ((p.x - q.x)**2 + (p.y - q.y)**2)**(1/2)
-    
-    def __str__(self): #Good
-        return "({},{})".format(self.x,self.y)
-    
-    def __eq__(self,other): #Good
-        return self.x == other.x and self.y == other.y
-
 class Stage:
     def __init__(self, players, possession):
         self.walls = [
@@ -66,6 +42,7 @@ class Stage:
                 player.move()
                 self.__resolvePlayerCollisions(player)
             new_state.append(player.center)
+            #TODO: resolve ball out-of-bounds situation
 
         self.ball.move()
         new_state.append(self.ball.center)
@@ -87,6 +64,27 @@ class Stage:
             or self.walls[1].collide(self.ball) \
             or self.walls[2].collide(self.ball) \
             or self.walls[3].collide(self.ball)
+
+class _Point:
+    def __init__(self, x, y): #Good
+        self.x = x
+        self.y = y
+
+    def add(self, p): #Good
+        return _Point(self.x + p.x, self.y + p.y)
+
+    def sub(self, p): #Good
+        return _Point(self.x - p.x, self.y - p.y)
+
+    @staticmethod
+    def normSq(p, q): #Good
+        return ((p.x - q.x)**2 + (p.y - q.y)**2)**(1/2)
+    
+    def __str__(self): #Good
+        return "({},{})".format(self.x,self.y)
+    
+    def __eq__(self,other): #Good
+        return self.x == other.x and self.y == other.y
 
 class _Wall: # 0 for horizontal orientation , 1 for vertical
     def __init__(self, bounds): #Good
@@ -176,12 +174,13 @@ class _Ball(_Circle):
         super().__init__(center,radius)
 
 class _Player(_Circle):
-    def __init__(self, center, radius, max_speed, max_angle, max_kick): #Good
+    def __init__(self, center, radius, max_speed, max_angle, max_kick, team): #Good
         super().__init__(center, radius)
         self.max_speed = max_speed
         self.max_angle = max_angle
         self.max_kick = max_kick
         self.prev_pos = center
+        self.team = team
 
     def move(self): #Good
         self.prev_pos = self.center
@@ -219,6 +218,9 @@ class _Player(_Circle):
         #Adjust ball's velocity
         b.angle = theta
         b.velocity = kick
+
+    def replace(self, center):
+        self.center = center
         
     def __str__(self): #Good
         return super().__str__() + "\nMax Speed: {} \nMax Angle: {} \nMax Kick: {}"\
