@@ -18,6 +18,13 @@ import torchvision.transforms as T
 
 import ExpSolutions.SimpleExp3 as SExp3
 
+# set up matplotlib
+is_ipython = 'inline' in matplotlib.get_backend()
+if is_ipython:
+    from IPython import display
+
+plt.ion()
+
 # if gpu is to be used
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -79,9 +86,10 @@ class DQN(nn.Module):
 
 class NaiveRLAgent:
     def __init__(self, env):
-        self.n_actions = env.action_space.n
+        self.n_actions = env.action_space
         self.decider = SExp3()
 
+        #TODO: convert state to tensor
         self.policy_net = DQN(screen_height, screen_width, self.n_actions).to(device)
         self.target_net = DQN(screen_height, screen_width, self.n_actions).to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
@@ -103,6 +111,25 @@ class NaiveRLAgent:
 
 
     episode_durations = []
+
+    def plot_durations():
+        plt.figure(2)
+        plt.clf()
+        durations_t = torch.tensor(episode_durations, dtype=torch.float)
+        plt.title('Training...')
+        plt.xlabel('Episode')
+        plt.ylabel('Duration')
+        plt.plot(durations_t.numpy())
+        # Take 100 episode averages and plot them too
+        if len(durations_t) >= 100:
+            means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
+            means = torch.cat((torch.zeros(99), means))
+            plt.plot(means.numpy())
+
+        plt.pause(0.001)  # pause a bit so that plots are updated
+        if is_ipython:
+            display.clear_output(wait=True)
+            display.display(plt.gcf())
 
     def optimize_model(self):
         if len(self.memory) < BATCH_SIZE:

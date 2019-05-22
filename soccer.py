@@ -12,16 +12,17 @@ TEAM_BLUE = True
 class Stage:
     def __init__(self, players, possession):
         self.walls = [
-            _Wall((_Point(0, 0), _Point(WIDTH, 0))),
-            _Wall((_Point(0, HEIGHT), _Point(WIDTH, HEIGHT))),
-            _Goal((_Point(0, HEIGHT), _Point(0,0)),
-                (_Point(0, HEIGHT / 3), _Point(0, HEIGHT * 2 / 3))),
-            _Goal((_Point(WIDTH,0), _Point(WIDTH, HEIGHT)),
-                (_Point(WIDTH, HEIGHT / 3), _Point(WIDTH, HEIGHT * 2 / 3)))
+            _Wall((Point(0, 0), Point(WIDTH, 0))),
+            _Wall((Point(0, HEIGHT), Point(WIDTH, HEIGHT))),
+            _Goal((Point(0, HEIGHT), Point(0,0)),
+                (Point(0, HEIGHT / 3), Point(0, HEIGHT * 2 / 3))),
+            _Goal((Point(WIDTH,0), Point(WIDTH, HEIGHT)),
+                (Point(WIDTH, HEIGHT / 3), Point(WIDTH, HEIGHT * 2 / 3)))
         ]
-        self.ball = _Ball(_Point(WIDTH / 2, HEIGHT / 2), 5)
+        self.ball = _Ball(Point(WIDTH / 2, HEIGHT / 2), 5)
         self.players = players
         self.possession = possession
+        self.score = [0, 0]
 
     def __resolvePlayerCollisions(self, player):
         for other in self.players:
@@ -34,24 +35,34 @@ class Stage:
         for i in range(len(self.players)):
             player = self.players[i]
             action = actions[i]
-            if (action[0] == 1):
-                player.changeMove(*action[1])
-            elif (action[0] == 2):
-                player.kick(self.ball, *action[1])
-            elif (action[0] == 0):
-                player.move()
-                self.__resolvePlayerCollisions(player)
+
+            if self.__ballOutBounds() \
+            or self.__ballScored():
+                if action[0] == 3:
+                    player.replace(*action[1])
+            else:
+                if action[0] == 1:
+                    player.changeMove(*action[1])
+                elif action[0] == 2:
+                    player.kick(self.ball, *action[1])
+                elif action[0] == 0:
+                    player.move()
+                    self.__resolvePlayerCollisions(player)
+
             new_state.append(player.center)
-            #TODO: resolve ball out-of-bounds situation
 
         self.ball.move()
         new_state.append(self.ball.center)
         if(self.__ballScored()):
-            new_state.append(1)
+            if self.possession == TEAM_BLUE:
+                self.score[0] += 1
+            else:
+                self.score[1] += 1
+            new_state.append(Point(1, None))
         elif(self.__ballOutBounds()):
-            new_state.append(2)
+            new_state.append(Point(2, None))
         else:
-            new_state.append(0)
+            new_state.append(Point(0, None))
         
         return new_state
 
@@ -65,16 +76,16 @@ class Stage:
             or self.walls[2].collide(self.ball) \
             or self.walls[3].collide(self.ball)
 
-class _Point:
+class Point:
     def __init__(self, x, y): #Good
         self.x = x
         self.y = y
 
     def add(self, p): #Good
-        return _Point(self.x + p.x, self.y + p.y)
+        return Point(self.x + p.x, self.y + p.y)
 
     def sub(self, p): #Good
-        return _Point(self.x - p.x, self.y - p.y)
+        return Point(self.x - p.x, self.y - p.y)
 
     @staticmethod
     def normSq(p, q): #Good
@@ -93,7 +104,6 @@ class _Wall: # 0 for horizontal orientation , 1 for vertical
             self.orientation = 1
         else:
             self.orientation = 0
-
 
     # def __orientation(p, q, r): #use cross-product to determine rotation of three points
     #     cross = (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x)
@@ -158,11 +168,11 @@ class _Circle:
         self.angle = 0
 
     def move(self): #Good
-        dp = _Point(self.velocity * cos(self.angle), self.velocity * sin(self.angle))
+        dp = Point(self.velocity * cos(self.angle), self.velocity * sin(self.angle))
         self.center = self.center.add(dp)
 
     def collide(self, c): #Good
-        return _Point.normSq(self.center, c.center) \
+        return Point.normSq(self.center, c.center) \
             <= self.radius + c.radius 
     
     def __str__(self): #Good
@@ -219,7 +229,8 @@ class _Player(_Circle):
         b.angle = theta
         b.velocity = kick
 
-    def replace(self, center):
+    #TODO: standardize action space
+    def replace(self, center, v, theta):
         self.center = center
         
     def __str__(self): #Good
