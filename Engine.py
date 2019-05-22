@@ -68,3 +68,4 @@ class SoccerEnv(gym.Env):
 
     def close(self):
         pass
+        

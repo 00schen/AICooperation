@@ -32,6 +32,12 @@ class Stage:
 
     def canKick(self, player):
         return player.collide(self.ball)
+
+    def getGoal(self, player):
+        if player.team == TEAM_BLUE:
+            return self.walls[2].inner
+        else:
+            return self.walls[3].inner
     
     def moveCycle(self, actions):
         new_state = []
@@ -42,23 +48,23 @@ class Stage:
 
             if self.__ballOutBounds() \
             or self.__ballScored():
-                if action[0] == 3:
+                if action[0] == 2:
                     player.replace(*action[1])
             else:
-                if action[0] == 1:
+                if action[0] == 0:
                     player.changeMove(*action[1])
-                elif action[0] == 2:
-                    player.kick(self.ball, *action[1])
-                elif action[0] == 0:
                     player.move()
                     self.__resolvePlayerCollisions(player)
-
+                elif action[0] == 1:
+                    player.kick(self.ball, *action[1])                    
+            if player.collide(ball):
+                self.possession = player.team
             new_state.append(player.center)
 
         self.ball.move()
         new_state.append(self.ball.center)
         if(self.__ballScored()):
-            if self.possession == TEAM_BLUE:
+            if self.__ballScored() == 1:
                 self.score[0] += 1
             else:
                 self.score[1] += 1
@@ -71,8 +77,12 @@ class Stage:
         return new_state
 
     def __ballScored(self):
-        return self.walls[2].hasScored(self.ball) \
-            or self.walls[3].hasScored(self.ball)
+        if self.walls[2].hasScored(self.ball):
+            return 1
+        elif self.walls[3].hasScored(self.ball):
+            return 2
+        else:
+            return 0
 
     def __ballOutBounds(self):
         return self.walls[0].collide(self.ball) \
@@ -175,7 +185,6 @@ class Player(_Circle):
         self.prev_pos = center
         self.team = team
 
-    #TODO: change move functionality
     def move(self): #Good
         self.prev_pos = self.center
         super().move()
