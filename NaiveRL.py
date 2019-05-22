@@ -7,14 +7,7 @@ import random
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from collections import namedtuple
 from itertools import count
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import torchvision.transforms as T
 
 players = None
 env = Engine.make("Naive")
@@ -25,23 +18,6 @@ if is_ipython:
     from IPython import display
 
 plt.ion()
-
-# if gpu is to be used
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-Transition = namedtuple('Transition',
-                        ('state', 'action', 'next_state', 'reward'))
-
-
-# resize = T.Compose([T.ToPILImage(),
-#                     T.Resize(40, interpolation=Image.CUBIC),
-#                     T.ToTensor()])
-
-
-# def get_cart_location(screen_width):
-#     world_width = env.x_threshold * 2
-#     scale = screen_width / world_width
-#     return int(env.state[0] * scale + screen_width / 2.0)  # MIDDLE OF CART
 
 # def get_screen():
 #     # Returned screen requested by gym is 400x600x3, but is sometimes larger
@@ -68,23 +44,8 @@ Transition = namedtuple('Transition',
 #     # Resize, and add a batch dimension (BCHW)
 #     return resize(screen).unsqueeze(0).to(device)
 
-
-# env.reset()
-# plt.figure()
-# plt.imshow(get_screen().cpu().squeeze(0).permute(1, 2, 0).numpy(),
-#            interpolation='none')
-# plt.title('Example extracted screen')
-# plt.show()
-
 def get_stage():
     pass
-
-BATCH_SIZE = 128
-GAMMA = 0.999
-EPS_START = 0.9
-EPS_END = 0.05
-EPS_DECAY = 200
-TARGET_UPDATE = 10
 
 # # Get screen size so that we can initialize layers correctly based on shape
 # # returned from AI gym. Typical dimensions at this point are close to 3x40x90
