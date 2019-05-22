@@ -2,6 +2,7 @@ from math import sin
 from math import cos
 from math import pi
 from math import atan2
+import Point
 
 WIDTH = 400
 HEIGHT = 200
@@ -19,7 +20,7 @@ class Stage:
             _Goal((Point(WIDTH,0), Point(WIDTH, HEIGHT)),
                 (Point(WIDTH, HEIGHT / 3), Point(WIDTH, HEIGHT * 2 / 3)))
         ]
-        self.ball = _Ball(Point(WIDTH / 2, HEIGHT / 2), 5)
+        self.ball = Ball(Point(WIDTH / 2, HEIGHT / 2), 5)
         self.players = players
         self.possession = possession
         self.score = [0, 0]
@@ -28,6 +29,9 @@ class Stage:
         for other in self.players:
             if player.collide(other) and player != other:
                 player.revertMove()
+
+    def canKick(self, player):
+        return player.collide(self.ball)
     
     def moveCycle(self, actions):
         new_state = []
@@ -75,27 +79,6 @@ class Stage:
             or self.walls[1].collide(self.ball) \
             or self.walls[2].collide(self.ball) \
             or self.walls[3].collide(self.ball)
-
-class Point:
-    def __init__(self, x, y): #Good
-        self.x = x
-        self.y = y
-
-    def add(self, p): #Good
-        return Point(self.x + p.x, self.y + p.y)
-
-    def sub(self, p): #Good
-        return Point(self.x - p.x, self.y - p.y)
-
-    @staticmethod
-    def normSq(p, q): #Good
-        return ((p.x - q.x)**2 + (p.y - q.y)**2)**(1/2)
-    
-    def __str__(self): #Good
-        return "({},{})".format(self.x,self.y)
-    
-    def __eq__(self,other): #Good
-        return self.x == other.x and self.y == other.y
 
 class _Wall: # 0 for horizontal orientation , 1 for vertical
     def __init__(self, bounds): #Good
@@ -179,11 +162,11 @@ class _Circle:
         return "\nCenter: {} \nRadius: {} \nVelocity: {} \nAngle: {}"\
             .format(self.center, self.radius, self.velocity, self.angle)
 
-class _Ball(_Circle):
+class Ball(_Circle):
     def __init__(self, center, radius): #Good
         super().__init__(center,radius)
 
-class _Player(_Circle):
+class Player(_Circle):
     def __init__(self, center, radius, max_speed, max_angle, max_kick, team): #Good
         super().__init__(center, radius)
         self.max_speed = max_speed
@@ -192,6 +175,7 @@ class _Player(_Circle):
         self.prev_pos = center
         self.team = team
 
+    #TODO: change move functionality
     def move(self): #Good
         self.prev_pos = self.center
         super().move()

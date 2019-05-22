@@ -84,19 +84,19 @@ class DQN(nn.Module):
         x = F.relu(self.bn3(self.conv3(x)))
         return self.head(x.view(x.size(0), -1))
 
-class NaiveRLAgent:
-    def __init__(self, env):
+class NaiveRLAgent(Agent):
+    def __init__(self, env, player):
         self.n_actions = env.action_space
         self.decider = SExp3()
-
         #TODO: convert state to tensor
         self.policy_net = DQN(screen_height, screen_width, self.n_actions).to(device)
         self.target_net = DQN(screen_height, screen_width, self.n_actions).to(device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.target_net.eval()
-
         self.optimizer = optim.RMSprop(self.policy_net.parameters())
         self.memory = ReplayMemory(10000)
+
+        self.player = player
 
     def select_action(self, state):
         

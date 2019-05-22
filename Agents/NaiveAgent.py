@@ -2,7 +2,7 @@ import random
 from math import pi
 import Point
 
-class RandomAgent(Agent):
+class NaiveAgent(Agent):
     def __init__(self, env, player):
         self.player = player
         self.bounds = env.bounds()
@@ -11,7 +11,7 @@ class RandomAgent(Agent):
     
 
     def select_action(self, state):
-        velocity = random.uniform(0, self.player.max_speed)
+        velocity = self.player.max_speed
         angle = random.uniform(0, 2*pi)
 
         if state[-1].x == 2 or state[-1].x == 1:
@@ -25,3 +25,6 @@ class RandomAgent(Agent):
         
         move = random.randint(0, 1)
         return (0) if move == 0 else (1, velocity, angle)
+
+
+

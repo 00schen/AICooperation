@@ -41,6 +41,9 @@ class SoccerEnv(gym.Env):
     def seed(self, seed=None):
         random.seed(seed)
 
+    def bounds(self):
+        return [Soccer.WIDTH, Soccer.HEIGHT]
+
     def step(self, action):
         self.state = self.stage.moveCycle(action)
         reward = []
