@@ -37,6 +37,9 @@ class SoccerEnv(gym.Env):
              spaces.Box(low = np.array([0, 0]),
                         high = np.array([Soccer.WIDTH, Soccer.HEIGHT],
                     ))])
+
+    def players(self):
+        return self.stage.players
     
     def seed(self, seed=None):
         random.seed(seed)

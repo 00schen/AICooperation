@@ -9,3 +9,6 @@ class Agent:
 
     def select_action(self, state):
         raise NotImplementedError
+
+    def optimize_model(self, i_episode, done):
+        pass
