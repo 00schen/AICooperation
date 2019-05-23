@@ -45,13 +45,13 @@ class SoccerEnv(gym.Env):
         return [Soccer.WIDTH, Soccer.HEIGHT]
 
     def step(self, action):
+        self.steps += 1
         self.state = self.stage.moveCycle(action)
         reward = []
         for player in self.stage.players:
-        #TODO: resolve multiple action types
-            pass
+            reward.append(self.reward(player, self.state[-1]))
         done = END_CONDITION(self.steps)
-        return (self.state, reward, done)
+        return self.state, reward, done
 
     def state(self):
         return self.state
@@ -69,3 +69,19 @@ class SoccerEnv(gym.Env):
     def close(self):
         pass
         
+    def reward(self, player, response):
+        if response.x == 1:
+            if response.y == player.team:
+                return -100
+            else:
+                return 100
+        elif response.x == 2:
+            if response.y == player.team:
+                return -100
+            else:
+                return 0
+        else:
+            if response.y == player.team:
+                return 1
+            else:
+                return -1

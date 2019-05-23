@@ -20,8 +20,8 @@ class NaiveAgent(Agent):
             return (2, self.__sideReset(state[-2]), velocity, angle)
         elif self.canKick():
             kick = self.player.max_kick
-            q = ball.sub(Point(self.goal[0].x,
-                        (self.goal[0].y +self.goal[1].y) / 2))
+            q = ball.sub(Point(self.goal[0][0].x,
+                        (self.goal[0][0].y +self.goal[0][1].y) / 2))
             kick_angle = atan2(q.y, q.x)
             return (1, kick, kick_angle)
         return (0, velocity, angle)

@@ -12,6 +12,7 @@ TEAM_BLUE = True
 
 class Stage:
     def __init__(self, players, possession):
+        #Blue goal is walls[2], Red goal is walls[3]
         self.walls = [
             _Wall((Point(0, 0), Point(WIDTH, 0))),
             _Wall((Point(0, HEIGHT), Point(WIDTH, HEIGHT))),
@@ -34,10 +35,11 @@ class Stage:
         return player.collide(self.ball)
 
     def getGoal(self, player):
+        #first bound is the opponent's goalss
         if player.team == TEAM_BLUE:
-            return self.walls[2].inner
+            return [self.walls[3].inner, self.walls[2].inner]
         else:
-            return self.walls[3].inner
+            return [self.walls[2].inner, self.walls[3].inner]
     
     def moveCycle(self, actions):
         new_state = []
@@ -65,14 +67,15 @@ class Stage:
         new_state.append(self.ball.center)
         if(self.__ballScored()):
             if self.__ballScored() == 1:
-                self.score[0] += 1
-            else:
                 self.score[1] += 1
-            new_state.append(Point(1, None))
+                new_state.append(Point(1, TEAM_BLUE))
+            else:
+                self.score[0] += 1
+                new_state.append(Point(1, TEAM_RED))
         elif(self.__ballOutBounds()):
-            new_state.append(Point(2, None))
+            new_state.append(Point(2, self.possession))
         else:
-            new_state.append(Point(0, None))
+            new_state.append(Point(0, self.possession))
         
         return new_state
 
