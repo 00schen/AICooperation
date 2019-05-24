@@ -9,6 +9,9 @@ class Point:
     def sub(self, p): #Good
         return Point(self.x - p.x, self.y - p.y)
 
+    def mult(self, m):
+        return Point(self.x * m, self.y * m)
+
     @staticmethod
     def normSq(p, q): #Good
         return (p.x - q.x)**2 + (p.y - q.y)**2

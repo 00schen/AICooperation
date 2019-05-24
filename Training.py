@@ -5,16 +5,7 @@ import Engine
 import math
 import random
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
 from itertools import count
-
-# set up matplotlib
-is_ipython = 'inline' in matplotlib.get_backend()
-if is_ipython:
-    from IPython import display
-
-plt.ion()
 
 env = Engine.make("Naive")
 players = env.players()
@@ -54,5 +45,4 @@ for i_episode in range(num_episodes):
             break
     
 print('Complete')
-env.render()
 env.close()

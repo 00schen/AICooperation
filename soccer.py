@@ -1,3 +1,5 @@
+#TODO: kick in when out of bounds
+
 from math import sin
 from math import cos
 from math import pi
@@ -12,13 +14,15 @@ TEAM_BLUE = True
 
 class Stage:
     def __init__(self, players, possession):
+        self.bounds = [Point(0, 0), Point(WIDTH, 0),
+                        Point(0, HEIGHT), Point(WIDTH, HEIGHT)]
         #Blue goal is walls[2], Red goal is walls[3]
         self.walls = [
-            _Wall((Point(0, 0), Point(WIDTH, 0))),
-            _Wall((Point(0, HEIGHT), Point(WIDTH, HEIGHT))),
-            _Goal((Point(0, HEIGHT), Point(0,0)),
+            Wall((self.bounds[0], self.bounds[1])),
+            Wall((self.bounds[2], self.bounds[3])),
+            Goal((self.bounds[0], self.bounds[2]),
                 (Point(0, HEIGHT / 3), Point(0, HEIGHT * 2 / 3))),
-            _Goal((Point(WIDTH,0), Point(WIDTH, HEIGHT)),
+            Goal((self.bounds[1], self.bounds[3]),
                 (Point(WIDTH, HEIGHT / 3), Point(WIDTH, HEIGHT * 2 / 3)))
         ]
         self.ball = Ball(Point(WIDTH / 2, HEIGHT / 2), 5)
@@ -35,7 +39,7 @@ class Stage:
         return player.collide(self.ball)
 
     def getGoal(self, player):
-        #first bound is the opponent's goalss
+        #first bound is the opponent's goal
         if player.team == TEAM_BLUE:
             return [self.walls[3].inner, self.walls[2].inner]
         else:
@@ -93,7 +97,7 @@ class Stage:
             or self.walls[2].collide(self.ball) \
             or self.walls[3].collide(self.ball)
 
-class _Wall: # 0 for horizontal orientation , 1 for vertical
+class Wall: # 0 for horizontal orientation , 1 for vertical
     def __init__(self, bounds): #Good
         self.bounds = bounds
         if(bounds[0].x == bounds[1].x):
@@ -129,13 +133,13 @@ class _Wall: # 0 for horizontal orientation , 1 for vertical
         return "Bound 1: {}\nBound 2: {} \nOrientation: {}"\
             .format(self.bounds[0], self.bounds[1], self.orientation)
 
-class _Goal(_Wall):
+class Goal(Wall):
     def __init__(self, bounds, inner): #Good
         super().__init__(bounds)
         self.inner = inner
 
     def hasScored(self, b): #Good
-        net = _Wall(self.inner)
+        net = Wall(self.inner)
         
         #check if b is within bounds
         if(net.orientation):
@@ -156,7 +160,7 @@ class _Goal(_Wall):
         return super().__str__() + "\nGoal bound 1: {}\nGoal bound 2: {}"\
             .format(self.inner[0], self.inner[1])
 
-class _Circle:
+class Circle:
     def __init__(self, center, radius): #Good
         self.center = center
         self.radius = radius
@@ -175,11 +179,11 @@ class _Circle:
         return "\nCenter: {} \nRadius: {} \nVelocity: {} \nAngle: {}"\
             .format(self.center, self.radius, self.velocity, self.angle)
 
-class Ball(_Circle):
+class Ball(Circle):
     def __init__(self, center, radius): #Good
         super().__init__(center,radius)
 
-class Player(_Circle):
+class Player(Circle):
     def __init__(self, center, radius, max_speed, max_angle, max_kick, team): #Good
         super().__init__(center, radius)
         self.max_speed = max_speed
@@ -225,7 +229,6 @@ class Player(_Circle):
         b.angle = theta
         b.velocity = kick
 
-    #TODO: standardize action space
     def replace(self, center, v, theta):
         self.center = center
         

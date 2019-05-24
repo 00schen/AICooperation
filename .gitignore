@@ -1,0 +1,5 @@
+**.pyc
+
+#intellij files
+*.xml
+*.iml

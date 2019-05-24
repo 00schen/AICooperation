@@ -1,90 +1,24 @@
-#implements gym.Env
-
-import random
-import Soccer
-import numpy as np
-
-import gym
-from gym import spaces
+import SoccerEnv
+from Soccer import Player
+import Point
+from math import pi
 
 def make(version):
     if version == "Naive":
-        players = lambda : None
+        players = None
+    elif version == "test1":
+        players = test1()
 
     return SoccerEnv(players)
 
-END_CONDITION = lambda x: x >= 1e10
-# END_CONDITION = lambda score: score[0] >= 7 or score[1] >= 7
+def runSimulation(version):
+    env = make(version)
+    done = False
+    while not done:
+        env.render()
+    env.close()    
 
-class SoccerEnv(gym.Env):
-    def __init__(self, players):
-        self.players = players
-        self.seed()
-        possession = Soccer.TEAM_BLUE \
-            if random.randint(0, 1) == 0 \
-            else Soccer.TEAM_RED
-        self.stage = Soccer.Stage(players(), possession)
-        self.steps = 0
-        
-        self.state = []
-        for player in self.stage.players:
-            self.state.append(player.center)
-        self.state.append(self.stage.ball.center)
-        self.state.append(Soccer.Point(0, None))
-
-        self.action_space = spaces.Tuple(
-            [spaces.Discrete(4), 
-             spaces.Box(low = np.array([0, 0]),
-                        high = np.array([Soccer.WIDTH, Soccer.HEIGHT],
-                    ))])
-
-    def players(self):
-        return self.stage.players
-    
-    def seed(self, seed=None):
-        random.seed(seed)
-
-    def bounds(self):
-        return [Soccer.WIDTH, Soccer.HEIGHT]
-
-    def step(self, action):
-        self.steps += 1
-        self.state = self.stage.moveCycle(action)
-        reward = []
-        for player in self.stage.players:
-            reward.append(self.reward(player, self.state[-1]))
-        done = END_CONDITION(self.steps)
-        return self.state, reward, done
-
-    def state(self):
-        return self.state
-
-    def reset(self):
-        possession = Soccer.TEAM_BLUE \
-            if random.randint(0, 1) == 0 \
-            else Soccer.TEAM_RED
-        self.stage = Soccer.Stage(self.players(), possession)
-        self.steps = 0
-
-    def render(self):
-        pass
-
-    def close(self):
-        pass
-        
-    def reward(self, player, response):
-        if response.x == 1:
-            if response.y == player.team:
-                return -100
-            else:
-                return 100
-        elif response.x == 2:
-            if response.y == player.team:
-                return -100
-            else:
-                return 0
-        else:
-            if response.y == player.team:
-                return 1
-            else:
-                return -1
+def test1():
+    player1 = Player(Point(50,50), 20, 2, 2*pi ,200)
+    player2 = Player(Point(30,100), 30, 5, 6, 7)
+    return [player1, player2]
