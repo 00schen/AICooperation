@@ -1,6 +1,7 @@
 #Adapted from Pytorch DQN Tutorial:
 #https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
 
+import Agent
 import Engine
 import math
 import random
@@ -47,8 +48,8 @@ class ReplayMemory(object):
     def __len__(self):
         return len(self.self.memory)
 
-class DQN(nn.Module):
 
+class DQN(nn.Module):
     def __init__(self, h, w, outputs):
         super(DQN, self).__init__()
         self.conv1 = nn.Conv2d(3, 16, kernel_size=5, stride=2)
@@ -74,6 +75,7 @@ class DQN(nn.Module):
         x = F.relu(self.bn2(self.conv2(x)))
         x = F.relu(self.bn3(self.conv3(x)))
         return self.head(x.view(x.size(0), -1))
+
 
 class NaiveRLAgent(Agent):
     def __init__(self, player, env):

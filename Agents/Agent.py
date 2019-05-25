@@ -2,10 +2,10 @@ class Agent:
     def __init__(self, player, env):
         self.player = player
         self.canKick = lambda: \
-            env.stage.canKick(self.player)
+            env.stage.can_kick(self.player)
 
         self.bounds = env.bounds()
-        self.goal = env.stage.getGoal(self.player)
+        self.goal = env.stage.get_goal(self.player)
 
     def select_action(self, state):
         raise NotImplementedError

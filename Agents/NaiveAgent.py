@@ -3,12 +3,13 @@ from math import pi
 from math import cos
 from math import sin
 from math import atan2
-import Point
+from Point import Point
+from Agents.Agent import Agent
+
 
 class NaiveAgent(Agent):
     def __init__(self, player, env):
         super().__init__(player, env)
-    
 
     def select_action(self, state):
         ball = state[-2]
@@ -17,16 +18,16 @@ class NaiveAgent(Agent):
         angle = atan2(p.y, p.x)
 
         if state[-1].x == 2 or state[-1].x == 1:
-            return (2, self.__sideReset(state[-2]), velocity, angle)
+            return (2, self.__side_reset(state[-2]), velocity, angle)
         elif self.canKick():
             kick = self.player.max_kick
             q = ball.sub(Point(self.goal[0][0].x,
-                        (self.goal[0][0].y +self.goal[0][1].y) / 2))
+                               (self.goal[0][0].y + self.goal[0][1].y) / 2))
             kick_angle = atan2(q.y, q.x)
             return (1, kick, kick_angle)
         return (0, velocity, angle)
 
-    def __sideReset(self, ball):
+    def __side_reset(self, ball):
         r = random.uniform(10, 30)
         theta = random.uniform(0, 2*pi)
         p = Point(ball.x + r * cos(theta),

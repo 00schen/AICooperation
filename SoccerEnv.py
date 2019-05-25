@@ -1,5 +1,5 @@
-#implements gym.Env
-#TODO: work out action_space
+# implements gym.Env
+# TODO: work out action_space
 
 import random
 from Soccer import *
@@ -9,20 +9,23 @@ import gym
 from gym import spaces
 
 import pygame
-import Renderer
+from Renderer import Renderer
+from Point import Point
 
 END_CONDITION = lambda x: x >= 1e10
 # END_CONDITION = lambda score: score[0] >= 7 or score[1] >= 7
+
 
 class SoccerEnv(gym.Env):
     """ 
     Only ONE instance is supposed to run at a time
     """
     def __init__(self, players):
+        pygame.init()
+
         self.players = players
         self.seed()
-        possession = (TEAM_BLUE, TEAM_RED) \
-                    [random.randint(0, 1) == 0]
+        possession = (TEAM_BLUE, TEAM_RED)[random.randint(0, 1) == 0]
         self.stage = Stage(players, possession)
         self.steps = 0
         
@@ -50,28 +53,27 @@ class SoccerEnv(gym.Env):
     def bounds(self):
         return [WIDTH, HEIGHT]
 
-    def step(self, action):
+    def step(self, actions):
         self.steps += 1
-        self.state = self.stage.moveCycle(action)
+        self.state = self.stage.move_cycle(actions)
         reward = []
         for player in self.stage.players:
             reward.append(self.reward(player, self.state[-1]))
         done = END_CONDITION(self.steps)
         return self.state, reward, done
 
-    def state(self):
+    def screen(self):
         return self.state
 
     def reset(self):
-        possession = (TEAM_BLUE, TEAM_RED) \
-                    [random.randint(0, 1) == 0] 
+        possession = (TEAM_BLUE, TEAM_RED)[random.randint(0, 1) == 0]
         self.stage = Stage(self.players(), possession)
         self.steps = 0
         self.clock = pygame.time.Clock()
 
     def render(self):
         self.clock.tick(10)
-        self.renderer.render(self.clock)
+        return self.renderer.regular_cycle()
 
     def close(self):
         pygame.quit()
