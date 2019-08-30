@@ -1,7 +1,6 @@
 from SoccerEnv import SoccerEnv
 from Soccer import *
 from Point import Point
-from math import pi
 from Agents.NaiveAgent import NaiveAgent
 
 
@@ -25,7 +24,8 @@ def run_simulation(version):
         for agent in agents:
             # Select and perform an action
             actions.append(agent.select_action(state))
-            print(actions)
+        print(actions)
+        print(state)
         state, _, done = env.step(actions)
 
         done = env.render()
@@ -33,8 +33,8 @@ def run_simulation(version):
 
 
 def test1():
-    player1 = Player(Point(50, 50), 20, 2, 2*pi, 200, TEAM_BLUE)
-    player2 = Player(Point(30, 100), 30, 5, 6, 7, TEAM_RED)
+    player1 = Player(Point(WIDTH / 3, HEIGHT / 2), 10, TEAM_BLUE)
+    player2 = Player(Point(WIDTH * 2 / 3, HEIGHT / 2), 10, TEAM_RED)
     env = SoccerEnv([player1, player2])
     agent1 = NaiveAgent(player1, env)
     agent2 = NaiveAgent(player2, env)

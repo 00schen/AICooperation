@@ -16,7 +16,10 @@ class Point:
         return (p.x - q.x)**2 + (p.y - q.y)**2
     
     def __str__(self): # Good
-        return "({},{})".format(self.x,self.y)
-    
-    def __eq__(self,other): # Good
+        return "({},{})".format(self.x, self.y)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __eq__(self, other): # Good
         return self.x == other.x and self.y == other.y

@@ -1,7 +1,7 @@
 #Adapted from Pytorch DQN Tutorial:
 #https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
 
-import Agent
+from Agents.Agent import Agent
 import Engine
 import math
 import random
